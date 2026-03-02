@@ -17,7 +17,7 @@ export default async function ExpertDetailPage({ params }: { params: Promise<{ i
 
   const { data: expert, error } = await supabase
     .from('expert_profiles')
-    .select('*, users(id, name, email)')
+    .select('*, users(id, name)')
     .eq('user_id', id)
     .eq('profile_completed', true)
     .single()
@@ -57,13 +57,27 @@ export default async function ExpertDetailPage({ params }: { params: Promise<{ i
               <span key={t} className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">{t}</span>
             ))}
           </div>
-          {expert.bio && <p className="text-gray-700 leading-relaxed">{expert.bio}</p>}
-          {expert.facebook_url && (
-            <a href={expert.facebook_url} target="_blank" rel="noopener noreferrer"
-              className="mt-4 inline-block text-sm text-blue-600 hover:underline">
-              Facebook プロフィールを見る →
-            </a>
-          )}
+          {expert.bio && <p className="text-gray-700 leading-relaxed mb-4">{expert.bio}</p>}
+          <div className="flex flex-wrap gap-3">
+            {expert.twitter_url && (
+              <a href={expert.twitter_url} target="_blank" rel="noopener noreferrer"
+                className="text-sm text-blue-500 hover:underline">
+                𝕏 Twitter/X →
+              </a>
+            )}
+            {expert.instagram_url && (
+              <a href={expert.instagram_url} target="_blank" rel="noopener noreferrer"
+                className="text-sm text-pink-500 hover:underline">
+                📷 Instagram →
+              </a>
+            )}
+            {expert.facebook_url && (
+              <a href={expert.facebook_url} target="_blank" rel="noopener noreferrer"
+                className="text-sm text-blue-600 hover:underline">
+                Facebook →
+              </a>
+            )}
+          </div>
         </div>
 
         {/* Availability slots */}

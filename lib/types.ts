@@ -25,7 +25,9 @@ export interface ExpertProfile {
   real_name: string
   affiliation: string
   tags: string[]
-  facebook_url: string
+  facebook_url?: string
+  twitter_url?: string
+  instagram_url?: string
   bio?: string
   weekly_commitment: WeeklyCommitment
   profile_completed: boolean

@@ -24,6 +24,8 @@ export default function ProfilePage() {
   const [realName, setRealName] = useState('')
   const [affiliation, setAffiliation] = useState('')
   const [facebookUrl, setFacebookUrl] = useState('')
+  const [twitterUrl, setTwitterUrl] = useState('')
+  const [instagramUrl, setInstagramUrl] = useState('')
   const [bio, setBio] = useState('')
   const [tagsInput, setTagsInput] = useState('')
   const [commitment, setCommitment] = useState('yes')
@@ -45,6 +47,8 @@ export default function ProfilePage() {
         setRealName(ep.real_name ?? '')
         setAffiliation(ep.affiliation ?? '')
         setFacebookUrl(ep.facebook_url ?? '')
+        setTwitterUrl(ep.twitter_url ?? '')
+        setInstagramUrl(ep.instagram_url ?? '')
         setBio(ep.bio ?? '')
         setTagsInput((ep.tags ?? []).join(', '))
         setCommitment(ep.weekly_commitment ?? 'yes')
@@ -59,12 +63,14 @@ export default function ProfilePage() {
     if (!user) return
     setSaving(true)
     const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean)
-    const completed = !!(realName && affiliation && facebookUrl && tags.length > 0)
+    const completed = !!(realName && affiliation && tags.length > 0)
     const { error: e } = await supabase.from('expert_profiles').upsert({
       user_id: user.id,
       real_name: realName,
       affiliation,
-      facebook_url: facebookUrl,
+      facebook_url: facebookUrl || null,
+      twitter_url: twitterUrl || null,
+      instagram_url: instagramUrl || null,
       bio,
       tags,
       weekly_commitment: commitment,
@@ -106,8 +112,10 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <Field label="実名 *" value={realName} onChange={setRealName} placeholder="山田 太郎" />
               <Field label="所属・肩書き *" value={affiliation} onChange={setAffiliation} placeholder="〇〇大学 教授 / 〇〇株式会社" />
-              <Field label="Facebook URL *" value={facebookUrl} onChange={setFacebookUrl} placeholder="https://facebook.com/yourprofile" />
               <Field label="専門タグ（カンマ区切り）*" value={tagsInput} onChange={setTagsInput} placeholder="地方創生, 教育, AI" />
+              <Field label="Twitter / X URL（任意）" value={twitterUrl} onChange={setTwitterUrl} placeholder="https://x.com/yourhandle" />
+              <Field label="Instagram URL（任意）" value={instagramUrl} onChange={setInstagramUrl} placeholder="https://instagram.com/yourhandle" />
+              <Field label="Facebook URL（任意）" value={facebookUrl} onChange={setFacebookUrl} placeholder="https://facebook.com/yourprofile" />
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">週次対応 *</label>
                 <select
