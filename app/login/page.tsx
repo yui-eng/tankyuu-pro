@@ -32,6 +32,8 @@ function LoginContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendDone, setResendDone] = useState(false)
 
   const searchParams = useSearchParams()
   const urlError = searchParams.get('error')
@@ -41,6 +43,15 @@ function LoginContent() {
   function resetForm() {
     setError('')
     setMessage('')
+    setResendDone(false)
+  }
+
+  async function handleResend() {
+    if (!email) return
+    setResendLoading(true)
+    await supabase.auth.resend({ type: 'signup', email })
+    setResendLoading(false)
+    setResendDone(true)
   }
 
   async function handleSignIn() {
@@ -123,8 +134,16 @@ function LoginContent() {
           </div>
         )}
         {!error && message && (
-          <div className="bg-blue-50 text-blue-700 text-sm rounded-lg px-4 py-3 mb-4">
-            {message}
+          <div className="bg-blue-50 text-blue-700 text-sm rounded-lg px-4 py-3 mb-4 space-y-2">
+            <p>{message}</p>
+            <p className="text-xs text-blue-500">迷惑メールフォルダもご確認ください。</p>
+            <button
+              onClick={handleResend}
+              disabled={resendLoading || resendDone}
+              className="text-xs underline text-blue-600 disabled:opacity-50"
+            >
+              {resendDone ? '再送信しました ✓' : resendLoading ? '送信中...' : 'メールが届かない場合は再送信'}
+            </button>
           </div>
         )}
 
