@@ -60,6 +60,12 @@ export default function RequestDetailPage() {
       scheduled_at: request.availability_slots?.start_datetime,
       status: 'scheduled',
     })
+    // Create chat thread
+    await supabase.from('chat_threads').insert({
+      request_id: requestId,
+      student_id: request.student_id,
+      expert_id: request.expert_id,
+    })
     setRequest((prev: any) => ({ ...prev, status: 'accepted' }))
     setActing(false)
   }
