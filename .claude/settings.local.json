@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:quest-expert-connect.base44.app)",
+      "Bash(npm install @supabase/supabase-js @supabase/ssr lucide-react date-fns)",
+      "Bash(npm run build)"
+    ]
+  }
+}
