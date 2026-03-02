@@ -1,44 +1,33 @@
 'use client'
-import { useState } from 'react'
+import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createChatThread } from './actions'
 import { Spinner } from '@/components/ui/Spinner'
 
-export function StartChatButton({ expertId, studentId, existingThreadId }: {
+export function StartChatButton({ expertId, existingThreadId }: {
   expertId: string
-  studentId: string
   existingThreadId?: string | null
 }) {
   const router = useRouter()
-  const supabase = createClient()
-  const [loading, setLoading] = useState(false)
+  const [pending, startTransition] = useTransition()
 
-  async function handleClick() {
+  function handleClick() {
     if (existingThreadId) {
       router.push(`/chat/${existingThreadId}`)
       return
     }
-    setLoading(true)
-    const { data, error } = await supabase
-      .from('chat_threads')
-      .insert({ student_id: studentId, expert_id: expertId })
-      .select('id')
-      .single()
-    if (error || !data) {
-      alert('チャットの開始に失敗しました')
-      setLoading(false)
-      return
-    }
-    router.push(`/chat/${data.id}`)
+    startTransition(async () => {
+      await createChatThread(expertId)
+    })
   }
 
   return (
     <button
       onClick={handleClick}
-      disabled={loading}
+      disabled={pending}
       className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2"
     >
-      {loading && <Spinner size="sm" />}
+      {pending && <Spinner size="sm" />}
       {existingThreadId ? 'チャットを開く' : 'メッセージを送る'}
     </button>
   )

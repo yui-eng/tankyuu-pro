@@ -1,7 +1,8 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { sendMessage } from './actions'
 import { Spinner } from '@/components/ui/Spinner'
 import { StatusBadge } from '@/components/ui/Badge'
 import { format } from 'date-fns'
@@ -19,12 +20,12 @@ export function ChatClient({ thread, initialMessages, user }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState<any[]>(initialMessages)
   const [text, setText] = useState('')
-  const [sending, setSending] = useState(false)
+  const [pending, startTransition] = useTransition()
 
   const request = thread.requests
   const slot = request?.availability_slots
 
-  // Realtime subscription
+  // Realtimeで新メッセージを受信
   useEffect(() => {
     const channel = supabase
       .channel(`chat-${thread.id}`)
@@ -33,36 +34,34 @@ export function ChatClient({ thread, initialMessages, user }: Props) {
         schema: 'public',
         table: 'chat_messages',
         filter: `thread_id=eq.${thread.id}`,
-      }, (payload) => {
-        setMessages(prev => [...prev, payload.new])
-        supabase.from('users').select('name, role').eq('id', (payload.new as any).sender_id).single()
-          .then(({ data }) => {
-            setMessages(prev => prev.map(m => m.id === (payload.new as any).id ? { ...m, users: data } : m))
-          })
+      }, () => {
+        router.refresh()
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [thread.id, supabase])
+  }, [thread.id, supabase, router])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  async function send() {
-    if (!text.trim() || !user) return
-    if (user.role === 'admin') return
-    setSending(true)
-    const { error: e } = await supabase.from('chat_messages').insert({
-      thread_id: thread.id,
-      sender_id: user.id,
-      message: text.trim(),
+  // initialMessagesが更新されたら同期
+  useEffect(() => {
+    setMessages(initialMessages)
+  }, [initialMessages])
+
+  function handleSend() {
+    if (!text.trim() || user?.role === 'admin') return
+    const msg = text
+    setText('')
+    startTransition(async () => {
+      await sendMessage(thread.id, msg)
+      router.refresh()
     })
-    if (!e) setText('')
-    setSending(false)
   }
 
   function handleKey(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
   }
 
   const isAdmin = user?.role === 'admin'
@@ -97,11 +96,14 @@ export function ChatClient({ thread, initialMessages, user }: Props) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-2xl mx-auto space-y-4">
+          {messages.length === 0 && (
+            <p className="text-center text-gray-400 text-sm py-8">まだメッセージがありません。最初のメッセージを送ってみましょう！</p>
+          )}
           {messages.map(msg => {
             const isMe = msg.sender_id === user?.id
             return (
               <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[75%] ${isMe ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
+                <div className={`max-w-[75%] flex flex-col gap-1 ${isMe ? 'items-end' : 'items-start'}`}>
                   {!isMe && (
                     <span className="text-xs text-gray-400 px-1">{msg.users?.name ?? '相手'}</span>
                   )}
@@ -134,11 +136,11 @@ export function ChatClient({ thread, initialMessages, user }: Props) {
               className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
             <button
-              onClick={send}
-              disabled={!text.trim() || sending}
+              onClick={handleSend}
+              disabled={!text.trim() || pending}
               className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-1"
             >
-              {sending ? <Spinner size="sm" /> : '送信'}
+              {pending ? <Spinner size="sm" /> : '送信'}
             </button>
           </div>
         </div>

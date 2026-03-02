@@ -73,7 +73,6 @@ export default async function ExpertDetailPage({ params }: { params: Promise<{ i
             <div className="mt-4">
               <StartChatButton
                 expertId={id}
-                studentId={authUser.id}
                 existingThreadId={existingThread?.id}
               />
             </div>
