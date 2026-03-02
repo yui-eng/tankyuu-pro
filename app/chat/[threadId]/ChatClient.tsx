@@ -4,26 +4,22 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { sendMessage } from './actions'
 import { Spinner } from '@/components/ui/Spinner'
-import { StatusBadge } from '@/components/ui/Badge'
 import { format } from 'date-fns'
-import { ja } from 'date-fns/locale'
 
 type Props = {
   thread: any
+  expertProfile: any
   initialMessages: any[]
   user: any
 }
 
-export function ChatClient({ thread, initialMessages, user }: Props) {
+export function ChatClient({ thread, expertProfile, initialMessages, user }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const bottomRef = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState<any[]>(initialMessages)
   const [text, setText] = useState('')
   const [pending, startTransition] = useTransition()
-
-  const request = thread.requests
-  const slot = request?.availability_slots
 
   // Realtimeで新メッセージを受信
   useEffect(() => {
@@ -74,15 +70,9 @@ export function ChatClient({ thread, initialMessages, user }: Props) {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-gray-900">
-                {request?.expert_profiles?.real_name ?? '有識者'} × {thread.student_id === user?.id ? 'あなた' : '生徒'}
+                {expertProfile?.real_name ?? '有識者'} × {thread.student_id === user?.id ? 'あなた' : '生徒'}
               </span>
-              {request && <StatusBadge status={request.status} />}
             </div>
-            {slot?.start_datetime && (
-              <p className="text-gray-400 text-xs mt-0.5">
-                {format(new Date(slot.start_datetime), 'M月d日(E) HH:mm', { locale: ja })} · 20分
-              </p>
-            )}
           </div>
           <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-600 text-sm">← 戻る</button>
         </div>

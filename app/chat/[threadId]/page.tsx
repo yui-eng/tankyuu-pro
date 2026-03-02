@@ -14,13 +14,14 @@ export default async function ChatPage({ params }: { params: Promise<{ threadId:
 
   const { data: userData } = await supabase.from('users').select('*').eq('id', authUser.id).single()
 
-  const { data: thread, error } = await supabase
+  // スレッド取得（シンプルなクエリ）
+  const { data: thread } = await supabase
     .from('chat_threads')
-    .select('*, requests(*, expert_profiles(real_name, affiliation), availability_slots(start_datetime))')
+    .select('*')
     .eq('id', threadId)
     .single()
 
-  if (error || !thread) {
+  if (!thread) {
     return <><Header user={userData} /><ErrorState message="チャットが見つかりません" /></>
   }
 
@@ -29,6 +30,14 @@ export default async function ChatPage({ params }: { params: Promise<{ threadId:
     return <><Header user={userData} /><ErrorState message="このチャットを閲覧する権限がありません" /></>
   }
 
+  // 有識者プロフィール取得
+  const { data: expertProfile } = await supabase
+    .from('expert_profiles')
+    .select('real_name, affiliation')
+    .eq('user_id', thread.expert_id)
+    .single()
+
+  // メッセージ取得
   const { data: messages } = await supabase
     .from('chat_messages')
     .select('*, users(name, role)')
@@ -38,7 +47,12 @@ export default async function ChatPage({ params }: { params: Promise<{ threadId:
   return (
     <>
       <Header user={userData} />
-      <ChatClient thread={thread} initialMessages={messages ?? []} user={userData} />
+      <ChatClient
+        thread={thread}
+        expertProfile={expertProfile}
+        initialMessages={messages ?? []}
+        user={userData}
+      />
     </>
   )
 }
