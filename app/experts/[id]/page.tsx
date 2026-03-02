@@ -41,16 +41,6 @@ export default async function ExpertDetailPage({ params }: { params: Promise<{ i
     .eq('student_id', authUser.id)
     .order('created_at', { ascending: false })
 
-  const { data: existingThread } = userData?.role === 'student'
-    ? await supabase
-        .from('chat_threads')
-        .select('id')
-        .eq('student_id', authUser.id)
-        .eq('expert_id', id)
-        .limit(1)
-        .maybeSingle()
-    : { data: null }
-
   return (
     <>
       <Header user={userData} />
@@ -71,10 +61,7 @@ export default async function ExpertDetailPage({ params }: { params: Promise<{ i
           {expert.bio && <p className="text-gray-700 leading-relaxed mb-4">{expert.bio}</p>}
           {userData?.role === 'student' && (
             <div className="mt-4">
-              <StartChatButton
-                expertId={id}
-                existingThreadId={existingThread?.id}
-              />
+              <StartChatButton expertId={id} />
             </div>
           )}
           <div className="flex flex-wrap gap-3 mt-3">
