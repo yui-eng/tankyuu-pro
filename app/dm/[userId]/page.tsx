@@ -14,26 +14,15 @@ export default async function DMPage({ params }: { params: Promise<{ userId: str
 
   const { data: userData } = await supabase.from('users').select('*').eq('id', authUser.id).single()
 
-  // 相手のユーザー情報
-  const { data: otherUser } = await supabase
-    .from('users').select('id, name, role').eq('id', userId).single()
+  // 有識者プロフィールから名前を取得（usersテーブルはRLSで読めないため）
+  const { data: expertProfile } = await supabase
+    .from('expert_profiles').select('real_name').eq('user_id', userId).eq('profile_completed', true).maybeSingle()
 
-  if (!otherUser) {
-    return <><Header user={userData} /><ErrorState message="ユーザーが見つかりません" /></>
+  if (!expertProfile) {
+    return <><Header user={userData} /><ErrorState message="有識者が見つかりません" /></>
   }
 
-  // 有識者なら本名を使う
-  const { data: expertProfile } = await supabase
-    .from('expert_profiles').select('real_name').eq('user_id', userId).maybeSingle()
-
-  const displayName = expertProfile?.real_name ?? otherUser.name ?? '相手'
-
-  // メッセージ取得
-  const { data: messages } = await supabase
-    .from('messages')
-    .select('*')
-    .or(`and(sender_id.eq.${authUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${authUser.id})`)
-    .order('created_at')
+  const displayName = expertProfile.real_name ?? '有識者'
 
   return (
     <>
@@ -42,7 +31,6 @@ export default async function DMPage({ params }: { params: Promise<{ userId: str
         currentUserId={authUser.id}
         otherUserId={userId}
         otherUserName={displayName}
-        initialMessages={messages ?? []}
       />
     </>
   )

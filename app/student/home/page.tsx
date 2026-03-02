@@ -3,10 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
-import { StatusBadge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/ErrorState'
-import { format } from 'date-fns'
-import { ja } from 'date-fns/locale'
 
 export default async function StudentHomePage() {
   const supabase = await createClient()
@@ -22,27 +19,16 @@ export default async function StudentHomePage() {
     .eq('student_id', authUser.id)
     .order('created_at', { ascending: false })
 
-  // DM: 自分が送受信したメッセージから会話相手を取得
-  const { data: dmMessages } = await supabase
-    .from('messages')
-    .select('sender_id, receiver_id, created_at')
-    .or(`sender_id.eq.${authUser.id},receiver_id.eq.${authUser.id}`)
+  // チャットスレッド一覧（DM含む）
+  const { data: threads } = await supabase
+    .from('chat_threads')
+    .select('id, expert_id, created_at')
+    .eq('student_id', authUser.id)
     .order('created_at', { ascending: false })
 
-  // ユニークな会話相手IDを抽出
-  const partnerIdSet = new Set<string>()
-  const partnerLastTime: Record<string, string> = {}
-  for (const m of dmMessages ?? []) {
-    const partnerId = m.sender_id === authUser.id ? m.receiver_id : m.sender_id
-    if (!partnerIdSet.has(partnerId)) {
-      partnerIdSet.add(partnerId)
-      partnerLastTime[partnerId] = m.created_at
-    }
-  }
-  const partnerIds = Array.from(partnerIdSet)
-
-  const { data: epList } = partnerIds.length
-    ? await supabase.from('expert_profiles').select('user_id, real_name').in('user_id', partnerIds)
+  const expertIds = (threads ?? []).map(t => t.expert_id)
+  const { data: epList } = expertIds.length
+    ? await supabase.from('expert_profiles').select('user_id, real_name').in('user_id', expertIds)
     : { data: [] }
   const epNameMap: Record<string, string> = {}
   for (const ep of epList ?? []) { epNameMap[ep.user_id] = ep.real_name }
@@ -72,7 +58,7 @@ export default async function StudentHomePage() {
               有識者を探す →
             </Link>
           </div>
-          {!partnerIds.length ? (
+          {!(threads ?? []).length ? (
             <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center">
               <p className="text-gray-400 text-sm mb-3">まだメッセージはありません</p>
               <Link
@@ -84,10 +70,10 @@ export default async function StudentHomePage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {partnerIds.map(pid => (
-                <Link key={pid} href={`/dm/${pid}`}>
+              {(threads ?? []).map(t => (
+                <Link key={t.id} href={`/chat/${t.id}`}>
                   <div className="bg-white border border-gray-100 rounded-2xl px-5 py-4 hover:shadow-md transition-shadow flex items-center justify-between">
-                    <p className="font-medium text-gray-900">{epNameMap[pid] ?? '有識者'}</p>
+                    <p className="font-medium text-gray-900">{epNameMap[t.expert_id] ?? '有識者'}</p>
                     <span className="text-blue-600 text-sm">開く →</span>
                   </div>
                 </Link>

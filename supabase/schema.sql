@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS public.sessions (
 -- Chat threads
 CREATE TABLE IF NOT EXISTS public.chat_threads (
   id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  request_id UUID UNIQUE NOT NULL REFERENCES public.requests(id) ON DELETE CASCADE,
+  request_id UUID UNIQUE REFERENCES public.requests(id) ON DELETE CASCADE,
   student_id UUID NOT NULL REFERENCES public.users(id),
   expert_id  UUID NOT NULL REFERENCES public.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -250,4 +250,3 @@ CREATE INDEX IF NOT EXISTS idx_slots_expert ON public.availability_slots(expert_
 CREATE INDEX IF NOT EXISTS idx_requests_student ON public.requests(student_id);
 CREATE INDEX IF NOT EXISTS idx_requests_expert ON public.requests(expert_id);
 CREATE INDEX IF NOT EXISTS idx_messages_thread ON public.chat_messages(thread_id);
-CREATE INDEX IF NOT EXISTS idx_threads_request ON public.chat_threads(request_id);
