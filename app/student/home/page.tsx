@@ -22,11 +22,18 @@ export default async function StudentHomePage() {
     .eq('student_id', authUser.id)
     .order('created_at', { ascending: false })
 
-  const { data: requests } = await supabase
-    .from('requests')
-    .select('*, expert_profiles(real_name, affiliation), slots:availability_slots(start_datetime), chat_threads(id)')
+  const { data: chatThreads } = await supabase
+    .from('chat_threads')
+    .select('id, expert_id, created_at')
     .eq('student_id', authUser.id)
     .order('created_at', { ascending: false })
+
+  const expertIds = [...new Set((chatThreads ?? []).map((t: any) => t.expert_id))]
+  const { data: epList } = expertIds.length
+    ? await supabase.from('expert_profiles').select('user_id, real_name').in('user_id', expertIds)
+    : { data: [] }
+  const epNameMap: Record<string, string> = {}
+  for (const ep of epList ?? []) { epNameMap[ep.user_id] = ep.real_name }
 
   return (
     <>
@@ -44,6 +51,43 @@ export default async function StudentHomePage() {
             ＋ 問いを作る
           </Link>
         </div>
+
+        {/* メッセージ */}
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">メッセージ</h2>
+            <Link href="/experts" className="text-sm text-blue-600 hover:underline">
+              有識者を探す →
+            </Link>
+          </div>
+          {!chatThreads?.length ? (
+            <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center">
+              <p className="text-gray-400 text-sm mb-3">まだメッセージはありません</p>
+              <Link
+                href="/experts"
+                className="inline-block px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                有識者を探してメッセージを送る
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {chatThreads.map((t: any) => (
+                <Link key={t.id} href={`/chat/${t.id}`}>
+                  <div className="bg-white border border-gray-100 rounded-2xl px-5 py-4 hover:shadow-md transition-shadow flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-900">{epNameMap[t.expert_id] ?? '有識者'}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">
+                        {format(new Date(t.created_at), 'M月d日(E)', { locale: ja })}
+                      </p>
+                    </div>
+                    <span className="text-blue-600 text-sm">開く →</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* My Questions */}
         <section className="mb-10">
@@ -69,42 +113,8 @@ export default async function StudentHomePage() {
           )}
         </section>
 
-        {/* My Requests */}
-        <section>
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">依頼・セッション</h2>
-          {!requests?.length ? (
-            <EmptyState message="依頼はまだありません。有識者を探してみましょう！" />
-          ) : (
-            <div className="space-y-3">
-              {requests.map((r: any) => (
-                <div key={r.id} className="bg-white border border-gray-100 rounded-2xl p-5">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div>
-                      <p className="font-medium text-gray-900">{r.expert_profiles?.real_name ?? '有識者'}</p>
-                      <p className="text-gray-500 text-sm">{r.expert_profiles?.affiliation}</p>
-                    </div>
-                    <StatusBadge status={r.status} />
-                  </div>
-                  {r.slots?.start_datetime && (
-                    <p className="text-gray-400 text-xs mb-3">
-                      {format(new Date(r.slots.start_datetime), 'M月d日(E) HH:mm', { locale: ja })}
-                    </p>
-                  )}
-                  <div className="flex gap-2">
-                    {r.chat_threads?.[0]?.id && (
-                      <Link href={`/chat/${r.chat_threads[0].id}`} className="text-sm text-blue-600 hover:underline">
-                        チャットを開く
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
         {/* Quick links */}
-        <div className="mt-10 bg-blue-50 rounded-2xl p-6">
+        <div className="bg-blue-50 rounded-2xl p-6">
           <h3 className="font-semibold text-blue-900 mb-3">次のアクション</h3>
           <div className="flex flex-wrap gap-3">
             <Link href="/experts" className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">

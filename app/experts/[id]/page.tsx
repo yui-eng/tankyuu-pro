@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
 import { ErrorState } from '@/components/ui/ErrorState'
+import { StartChatButton } from './StartChatButton'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
@@ -40,6 +41,16 @@ export default async function ExpertDetailPage({ params }: { params: Promise<{ i
     .eq('student_id', authUser.id)
     .order('created_at', { ascending: false })
 
+  const { data: existingThread } = userData?.role === 'student'
+    ? await supabase
+        .from('chat_threads')
+        .select('id')
+        .eq('student_id', authUser.id)
+        .eq('expert_id', id)
+        .limit(1)
+        .maybeSingle()
+    : { data: null }
+
   return (
     <>
       <Header user={userData} />
@@ -58,7 +69,16 @@ export default async function ExpertDetailPage({ params }: { params: Promise<{ i
             ))}
           </div>
           {expert.bio && <p className="text-gray-700 leading-relaxed mb-4">{expert.bio}</p>}
-          <div className="flex flex-wrap gap-3">
+          {userData?.role === 'student' && (
+            <div className="mt-4">
+              <StartChatButton
+                expertId={id}
+                studentId={authUser.id}
+                existingThreadId={existingThread?.id}
+              />
+            </div>
+          )}
+          <div className="flex flex-wrap gap-3 mt-3">
             {expert.twitter_url && (
               <a href={expert.twitter_url} target="_blank" rel="noopener noreferrer"
                 className="text-sm text-blue-500 hover:underline">
