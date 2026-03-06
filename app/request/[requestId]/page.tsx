@@ -34,7 +34,6 @@ export default function RequestDetailPage() {
           questions(*),
           users!requests_student_id_fkey(name, email),
           availability_slots(*),
-          chat_threads(id),
           sessions(id, status, three_line_logs(*))
         `)
         .eq('id', requestId)
@@ -60,12 +59,6 @@ export default function RequestDetailPage() {
       scheduled_at: request.availability_slots?.start_datetime,
       status: 'scheduled',
     })
-    // Create chat thread
-    await supabase.from('chat_threads').insert({
-      request_id: requestId,
-      student_id: request.student_id,
-      expert_id: request.expert_id,
-    })
     setRequest((prev: any) => ({ ...prev, status: 'accepted' }))
     setActing(false)
   }
@@ -84,7 +77,6 @@ export default function RequestDetailPage() {
 
   const q = request.questions
   const slot = request.availability_slots
-  const thread = request.chat_threads?.[0]
   const session = request.sessions?.[0]
   const log = session?.three_line_logs?.[0]
 
@@ -145,13 +137,8 @@ export default function RequestDetailPage() {
           </div>
         )}
 
-        {/* Chat & Log */}
+        {/* Log */}
         <div className="flex gap-3 flex-wrap">
-          {thread?.id && (
-            <Link href={`/chat/${thread.id}`} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
-              チャットを開く
-            </Link>
-          )}
           {session?.id && user?.role === 'expert' && (
             <Link href={`/log/review/${session.id}`} className="px-4 py-2 border border-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors">
               ログを確認・承認

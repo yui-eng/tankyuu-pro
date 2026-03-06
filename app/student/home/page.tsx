@@ -19,20 +19,6 @@ export default async function StudentHomePage() {
     .eq('student_id', authUser.id)
     .order('created_at', { ascending: false })
 
-  // チャットスレッド一覧（DM含む）
-  const { data: threads } = await supabase
-    .from('chat_threads')
-    .select('id, expert_id, created_at')
-    .eq('student_id', authUser.id)
-    .order('created_at', { ascending: false })
-
-  const expertIds = (threads ?? []).map(t => t.expert_id)
-  const { data: epList } = expertIds.length
-    ? await supabase.from('expert_profiles').select('user_id, real_name').in('user_id', expertIds)
-    : { data: [] }
-  const epNameMap: Record<string, string> = {}
-  for (const ep of epList ?? []) { epNameMap[ep.user_id] = ep.real_name }
-
   return (
     <>
       <Header user={userData} />
@@ -49,38 +35,6 @@ export default async function StudentHomePage() {
             ＋ 問いを作る
           </Link>
         </div>
-
-        {/* メッセージ */}
-        <section className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">メッセージ</h2>
-            <Link href="/experts" className="text-sm text-blue-600 hover:underline">
-              有識者を探す →
-            </Link>
-          </div>
-          {!(threads ?? []).length ? (
-            <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center">
-              <p className="text-gray-400 text-sm mb-3">まだメッセージはありません</p>
-              <Link
-                href="/experts"
-                className="inline-block px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                有識者を探してメッセージを送る
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {(threads ?? []).map(t => (
-                <Link key={t.id} href={`/chat/${t.id}`}>
-                  <div className="bg-white border border-gray-100 rounded-2xl px-5 py-4 hover:shadow-md transition-shadow flex items-center justify-between">
-                    <p className="font-medium text-gray-900">{epNameMap[t.expert_id] ?? '有識者'}</p>
-                    <span className="text-blue-600 text-sm">開く →</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
 
         {/* My Questions */}
         <section className="mb-10">

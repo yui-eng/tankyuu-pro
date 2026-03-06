@@ -29,8 +29,7 @@ export default async function ExpertInboxPage() {
       *,
       questions(id, title, tags, background),
       users!requests_student_id_fkey(name),
-      availability_slots(start_datetime),
-      chat_threads(id)
+      availability_slots(start_datetime)
     `)
     .eq('expert_id', authUser.id)
     .order('created_at', { ascending: false })
@@ -93,9 +92,6 @@ function RequestCard({ r }: { r: any }) {
       </div>
       <div className="flex gap-3">
         <Link href={`/request/${r.id}`} className="text-sm text-blue-600 hover:underline">詳細・承諾/辞退</Link>
-        {r.chat_threads?.[0]?.id && (
-          <Link href={`/chat/${r.chat_threads[0].id}`} className="text-sm text-blue-600 hover:underline">チャット</Link>
-        )}
       </div>
     </div>
   )

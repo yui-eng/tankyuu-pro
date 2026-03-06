@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
 import { ErrorState } from '@/components/ui/ErrorState'
-import { StartChatButton } from './StartChatButton'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
@@ -59,12 +58,7 @@ export default async function ExpertDetailPage({ params }: { params: Promise<{ i
             ))}
           </div>
           {expert.bio && <p className="text-gray-700 leading-relaxed mb-4">{expert.bio}</p>}
-          {userData?.role === 'student' && (
-            <div className="mt-4">
-              <StartChatButton expertId={id} />
-            </div>
-          )}
-          <div className="flex flex-wrap gap-3 mt-3">
+          <div className="flex flex-wrap gap-3 mt-4">
             {expert.twitter_url && (
               <a href={expert.twitter_url} target="_blank" rel="noopener noreferrer"
                 className="text-sm text-blue-500 hover:underline">

@@ -24,7 +24,7 @@ export default async function ExpertHomePage() {
 
   const { data: requests } = await supabase
     .from('requests')
-    .select('*, questions(title, tags), users!requests_student_id_fkey(name), availability_slots(start_datetime), chat_threads(id)')
+    .select('*, questions(title, tags), users!requests_student_id_fkey(name), availability_slots(start_datetime)')
     .eq('expert_id', authUser.id)
     .order('created_at', { ascending: false })
     .limit(5)
@@ -105,9 +105,6 @@ export default async function ExpertHomePage() {
                   )}
                   <div className="flex gap-3">
                     <Link href={`/request/${r.id}`} className="text-sm text-blue-600 hover:underline">詳細を見る</Link>
-                    {r.chat_threads?.[0]?.id && (
-                      <Link href={`/chat/${r.chat_threads[0].id}`} className="text-sm text-blue-600 hover:underline">チャット</Link>
-                    )}
                   </div>
                 </div>
               ))}

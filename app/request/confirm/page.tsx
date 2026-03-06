@@ -66,23 +66,7 @@ function ConfirmContent() {
     // Mark slot as booked
     await supabase.from('availability_slots').update({ status: 'booked' }).eq('id', slotId)
 
-    // Create chat thread immediately
-    const { data: thread, error: threadErr } = await supabase.from('chat_threads').insert({
-      request_id: request.id,
-      student_id: authUser.id,
-      expert_id: expertId,
-    }).select().single()
-
-    if (threadErr || !thread) { setError('チャットスレッドの作成に失敗しました'); setSubmitting(false); return }
-
-    // Welcome message
-    await supabase.from('chat_messages').insert({
-      thread_id: thread.id,
-      sender_id: authUser.id,
-      message: '依頼を送りました！よろしくお願いします。セッションについてここで事前確認できます。',
-    })
-
-    router.push(`/chat/${thread.id}`)
+    router.push('/student/home')
   }
 
   if (loading) return <PageSpinner />
@@ -124,7 +108,7 @@ function ConfirmContent() {
         </div>
 
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-sm text-amber-800">
-          <strong>注意：</strong>依頼送信後、チャットで事前確認ができます。当日キャンセルはチャットでご連絡ください。
+          <strong>注意：</strong>依頼送信後、有識者の承諾をお待ちください。
         </div>
 
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
@@ -134,7 +118,7 @@ function ConfirmContent() {
           disabled={submitting || !selectedQuestion}
           className="w-full py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {submitting ? <><Spinner size="sm" />送信中...</> : '依頼を送信してチャットを開く'}
+          {submitting ? <><Spinner size="sm" />送信中...</> : '依頼を送信する'}
         </button>
       </div>
     </>

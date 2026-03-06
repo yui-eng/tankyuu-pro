@@ -43,12 +43,6 @@ export default async function AdminPage() {
     .order('created_at', { ascending: false })
     .limit(20)
 
-  const { data: threads } = await supabase
-    .from('chat_threads')
-    .select('*, users!chat_threads_student_id_fkey(name), expert_profiles!chat_threads_expert_id_fkey(real_name), requests(status)')
-    .order('created_at', { ascending: false })
-    .limit(20)
-
   const incompleteExperts = users?.filter((u: any) => u.role === 'expert' && !u.expert_profiles?.profile_completed) ?? []
 
   return (
@@ -143,27 +137,6 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        {/* Chat threads */}
-        <section>
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">チャット一覧（監査）</h2>
-          <div className="space-y-2">
-            {(threads ?? []).map((t: any) => (
-              <Link key={t.id} href={`/chat/${t.id}`}>
-                <div className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-sm transition-shadow flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {t.users?.name ?? '生徒'} × {t.expert_profiles?.real_name ?? '有識者'}
-                    </p>
-                    <p className="text-gray-400 text-xs mt-0.5">
-                      {format(new Date(t.created_at), 'M月d日 HH:mm', { locale: ja })}
-                    </p>
-                  </div>
-                  {t.requests?.[0]?.status && <StatusBadge status={t.requests[0].status} />}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
       </div>
     </>
   )
