@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -23,18 +23,16 @@ export default async function QuestionDetailPage({ params }: { params: Promise<{
 
   if (error || !question) {
     return (
-      <>
-        <Header user={userData} />
+      <AppLayout user={userData}>
         <ErrorState message="問いカードが見つかりません" />
-      </>
+      </AppLayout>
     )
   }
 
   const isOwner = question.student_id === authUser.id
 
   return (
-    <>
-      <Header user={userData} />
+    <AppLayout user={userData}>
       <div className="max-w-2xl mx-auto px-4 py-10">
         <Link href="/student/home" className="text-sm text-gray-500 hover:text-gray-700 mb-6 inline-block">
           ← ホームに戻る
@@ -68,7 +66,7 @@ export default async function QuestionDetailPage({ params }: { params: Promise<{
           </div>
         )}
       </div>
-    </>
+    </AppLayout>
   )
 }
 

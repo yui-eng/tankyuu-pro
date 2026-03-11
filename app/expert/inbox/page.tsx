@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { StatusBadge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/ErrorState'
 import { format } from 'date-fns'
@@ -38,8 +38,7 @@ export default async function ExpertInboxPage() {
   const others = requests?.filter(r => r.status !== 'pending') ?? []
 
   return (
-    <>
-      <Header user={userData} />
+    <AppLayout user={userData}>
       <div className="max-w-3xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold text-gray-900 mb-8">依頼受信箱</h1>
 
@@ -66,7 +65,7 @@ export default async function ExpertInboxPage() {
           )}
         </section>
       </div>
-    </>
+    </AppLayout>
   )
 }
 

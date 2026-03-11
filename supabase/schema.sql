@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS public.expert_profiles (
   affiliation       TEXT NOT NULL DEFAULT '',
   tags              TEXT[] DEFAULT '{}',
   facebook_url      TEXT NOT NULL DEFAULT '',
+  slack_url         TEXT,
   bio               TEXT,
   weekly_commitment TEXT NOT NULL CHECK (weekly_commitment IN ('yes', 'maybe')) DEFAULT 'yes',
   profile_completed BOOLEAN NOT NULL DEFAULT FALSE,

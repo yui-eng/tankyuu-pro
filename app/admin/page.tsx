@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { StatusBadge, Badge } from '@/components/ui/Badge'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -46,8 +46,7 @@ export default async function AdminPage() {
   const incompleteExperts = users?.filter((u: any) => u.role === 'expert' && !u.expert_profiles?.profile_completed) ?? []
 
   return (
-    <>
-      <Header user={userData} />
+    <AppLayout user={userData}>
       <div className="max-w-5xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold text-gray-900 mb-8">管理ダッシュボード</h1>
 
@@ -138,7 +137,7 @@ export default async function AdminPage() {
         </section>
 
       </div>
-    </>
+    </AppLayout>
   )
 }
 

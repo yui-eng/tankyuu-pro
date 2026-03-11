@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { StatusBadge, Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/ErrorState'
 import { format } from 'date-fns'
@@ -41,8 +41,7 @@ export default async function ExpertHomePage() {
   const isProfileComplete = expertProfile?.profile_completed
 
   return (
-    <>
-      <Header user={userData} />
+    <AppLayout user={userData}>
       <div className="max-w-3xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -121,6 +120,6 @@ export default async function ExpertHomePage() {
           </Link>
         </div>
       </div>
-    </>
+    </AppLayout>
   )
 }

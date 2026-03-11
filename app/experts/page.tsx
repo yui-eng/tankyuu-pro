@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { ExpertList } from './ExpertList'
 
 export default async function ExpertsPage() {
@@ -33,13 +33,12 @@ export default async function ExpertsPage() {
   }))
 
   return (
-    <>
-      <Header user={userData} />
+    <AppLayout user={userData}>
       <div className="max-w-4xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">有識者を探す</h1>
         <p className="text-gray-500 text-sm mb-6">プロフィール完了済みの有識者一覧です</p>
         <ExpertList experts={expertData} />
       </div>
-    </>
+    </AppLayout>
   )
 }

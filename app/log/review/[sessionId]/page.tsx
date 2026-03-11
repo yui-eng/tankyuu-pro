@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { PageSpinner, Spinner } from '@/components/ui/Spinner'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { Badge } from '@/components/ui/Badge'
@@ -56,15 +56,14 @@ export default function LogReviewPage() {
     setSaving(false)
   }
 
-  if (loading) return <><Header user={null} /><PageSpinner /></>
-  if (error) return <><Header user={user} /><ErrorState message={error} /></>
+  if (loading) return <AppLayout user={null}><PageSpinner /></AppLayout>
+  if (error) return <AppLayout user={user}><ErrorState message={error} /></AppLayout>
 
   const q = session?.requests?.questions
   const isApproved = !!log?.approved_at
 
   return (
-    <>
-      <Header user={user} />
+    <AppLayout user={user}>
       <div className="max-w-xl mx-auto px-4 py-10">
         <button onClick={() => router.back()} className="text-sm text-gray-500 hover:text-gray-700 mb-6 flex items-center gap-1">
           ← 戻る
@@ -114,7 +113,7 @@ export default function LogReviewPage() {
           </div>
         )}
       </div>
-    </>
+    </AppLayout>
   )
 }
 

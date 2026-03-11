@@ -28,6 +28,7 @@ export interface ExpertProfile {
   facebook_url?: string
   twitter_url?: string
   instagram_url?: string
+  slack_url?: string
   bio?: string
   weekly_commitment: WeeklyCommitment
   profile_completed: boolean

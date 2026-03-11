@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { User, ExpertProfile } from '@/lib/types'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { PageSpinner } from '@/components/ui/Spinner'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { Spinner } from '@/components/ui/Spinner'
@@ -26,6 +26,7 @@ export default function ProfilePage() {
   const [facebookUrl, setFacebookUrl] = useState('')
   const [twitterUrl, setTwitterUrl] = useState('')
   const [instagramUrl, setInstagramUrl] = useState('')
+  const [slackUrl, setSlackUrl] = useState('')
   const [bio, setBio] = useState('')
   const [tagsInput, setTagsInput] = useState('')
   const [commitment, setCommitment] = useState('yes')
@@ -49,6 +50,7 @@ export default function ProfilePage() {
         setFacebookUrl(ep.facebook_url ?? '')
         setTwitterUrl(ep.twitter_url ?? '')
         setInstagramUrl(ep.instagram_url ?? '')
+        setSlackUrl(ep.slack_url ?? '')
         setBio(ep.bio ?? '')
         setTagsInput((ep.tags ?? []).join(', '))
         setCommitment(ep.weekly_commitment ?? 'yes')
@@ -71,6 +73,7 @@ export default function ProfilePage() {
       facebook_url: facebookUrl || null,
       twitter_url: twitterUrl || null,
       instagram_url: instagramUrl || null,
+      slack_url: slackUrl || null,
       bio,
       tags,
       weekly_commitment: commitment,
@@ -81,12 +84,11 @@ export default function ProfilePage() {
     setSaving(false)
   }
 
-  if (loading) return <><Header user={null} /><PageSpinner /></>
-  if (error) return <><Header user={user} /><ErrorState message={error} onRetry={load} /></>
+  if (loading) return <AppLayout user={null}><PageSpinner /></AppLayout>
+  if (error) return <AppLayout user={user}><ErrorState message={error} onRetry={load} /></AppLayout>
 
   return (
-    <>
-      <Header user={user} />
+    <AppLayout user={user}>
       <div className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold text-gray-900 mb-8">プロフィール</h1>
 
@@ -116,6 +118,7 @@ export default function ProfilePage() {
               <Field label="Twitter / X URL（任意）" value={twitterUrl} onChange={setTwitterUrl} placeholder="https://x.com/yourhandle" />
               <Field label="Instagram URL（任意）" value={instagramUrl} onChange={setInstagramUrl} placeholder="https://instagram.com/yourhandle" />
               <Field label="Facebook URL（任意）" value={facebookUrl} onChange={setFacebookUrl} placeholder="https://facebook.com/yourprofile" />
+              <Field label="Slack プロフィール URL（任意）" value={slackUrl} onChange={setSlackUrl} placeholder="https://app.slack.com/team/XXXXXXXXX" />
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">週次対応 *</label>
                 <select
@@ -148,7 +151,7 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
-    </>
+    </AppLayout>
   )
 }
 

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { PageSpinner, Spinner } from '@/components/ui/Spinner'
 import { ErrorState } from '@/components/ui/ErrorState'
 
@@ -64,15 +64,14 @@ export default function LogSubmitPage() {
     router.push('/student/home')
   }
 
-  if (loading) return <><Header user={null} /><PageSpinner /></>
-  if (error && !session) return <><Header user={user} /><ErrorState message={error} /></>
+  if (loading) return <AppLayout user={null}><PageSpinner /></AppLayout>
+  if (error && !session) return <AppLayout user={user}><ErrorState message={error} /></AppLayout>
 
   const question = session?.requests?.questions
   const isSubmitted = !!existingLog?.submitted_at
 
   return (
-    <>
-      <Header user={user} />
+    <AppLayout user={user}>
       <div className="max-w-xl mx-auto px-4 py-10">
         <button onClick={() => router.back()} className="text-sm text-gray-500 hover:text-gray-700 mb-6 flex items-center gap-1">
           ← 戻る
@@ -136,7 +135,7 @@ export default function LogSubmitPage() {
           )}
         </div>
       </div>
-    </>
+    </AppLayout>
   )
 }
 

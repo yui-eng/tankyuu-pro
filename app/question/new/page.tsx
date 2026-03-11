@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { Spinner } from '@/components/ui/Spinner'
 
 const TAGS = ['地方創生', '教育', 'AI・テクノロジー', '環境', '医療・福祉', '社会起業', 'キャリア', 'その他']
@@ -46,8 +46,7 @@ export default function QuestionNewPage() {
   }
 
   return (
-    <>
-      <Header user={null} />
+    <AppLayout user={null}>
       <div className="max-w-2xl mx-auto px-4 py-10">
         <button onClick={() => router.back()} className="text-sm text-gray-500 hover:text-gray-700 mb-6 flex items-center gap-1">
           ← 戻る
@@ -91,7 +90,7 @@ export default function QuestionNewPage() {
           </button>
         </div>
       </div>
-    </>
+    </AppLayout>
   )
 }
 

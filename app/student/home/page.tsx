@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { EmptyState } from '@/components/ui/ErrorState'
 
 export default async function StudentHomePage() {
@@ -20,8 +20,7 @@ export default async function StudentHomePage() {
     .order('created_at', { ascending: false })
 
   return (
-    <>
-      <Header user={userData} />
+    <AppLayout user={userData}>
       <div className="max-w-3xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -73,6 +72,6 @@ export default async function StudentHomePage() {
           </div>
         </div>
       </div>
-    </>
+    </AppLayout>
   )
 }

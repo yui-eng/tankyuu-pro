@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { PageSpinner, Spinner } from '@/components/ui/Spinner'
 import { ErrorState, EmptyState } from '@/components/ui/ErrorState'
 import { StatusBadge } from '@/components/ui/Badge'
@@ -72,26 +72,24 @@ export default function AvailabilityPage() {
     setSlots(prev => prev.filter(s => s.id !== id))
   }
 
-  if (loading) return <><Header user={null} /><PageSpinner /></>
-  if (error) return <><Header user={user} /><ErrorState message={error} onRetry={load} /></>
+  if (loading) return <AppLayout user={null}><PageSpinner /></AppLayout>
+  if (error) return <AppLayout user={user}><ErrorState message={error} onRetry={load} /></AppLayout>
 
   if (!expert?.profile_completed) {
     return (
-      <>
-        <Header user={user} />
+      <AppLayout user={user}>
         <div className="max-w-xl mx-auto px-4 py-20 text-center">
           <p className="text-gray-600 mb-4">空き枠を登録するには、まずプロフィールを完成させてください。</p>
           <button onClick={() => router.push('/profile')} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
             プロフィールを編集する
           </button>
         </div>
-      </>
+      </AppLayout>
     )
   }
 
   return (
-    <>
-      <Header user={user} />
+    <AppLayout user={user}>
       <div className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold text-gray-900 mb-8">空き枠を管理する</h1>
 
@@ -155,6 +153,6 @@ export default function AvailabilityPage() {
           )}
         </div>
       </div>
-    </>
+    </AppLayout>
   )
 }
