@@ -16,8 +16,12 @@ CREATE TABLE IF NOT EXISTS public.users (
   email       TEXT NOT NULL,
   name        TEXT NOT NULL DEFAULT '',
   role        TEXT NOT NULL CHECK (role IN ('student', 'expert', 'admin')) DEFAULT 'student',
+  avatar_url  TEXT,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Avatar migration (run if table already exists)
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
 -- Student profiles
 CREATE TABLE IF NOT EXISTS public.student_profiles (

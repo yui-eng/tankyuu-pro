@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { User } from '@/lib/types'
+import { Avatar } from '@/components/ui/Avatar'
 
 interface Props {
   user: User | null
@@ -51,9 +52,7 @@ export function Sidebar({ user }: Props) {
       {user && (
         <div className="px-4 py-4 border-b border-white/10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
-              {user.name?.[0] ?? '?'}
-            </div>
+            <Avatar user={user} size="sm" />
             <div className="min-w-0">
               <p className="text-white text-sm font-medium truncate">{user.name}</p>
               <p className="text-gray-500 text-xs">

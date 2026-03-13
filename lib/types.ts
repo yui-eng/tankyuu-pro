@@ -9,6 +9,7 @@ export interface User {
   email: string
   name: string
   role: Role
+  avatar_url?: string
   created_at: string
 }
 

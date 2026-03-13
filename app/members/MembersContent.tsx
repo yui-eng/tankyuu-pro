@@ -1,24 +1,15 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-
-const AVATAR_COLORS = [
-  'bg-blue-500', 'bg-indigo-500', 'bg-violet-500', 'bg-emerald-500',
-  'bg-rose-500', 'bg-amber-500', 'bg-cyan-500', 'bg-pink-500',
-]
-function avatarColor(id: string) {
-  let n = 0
-  for (const c of id) n += c.charCodeAt(0)
-  return AVATAR_COLORS[n % AVATAR_COLORS.length]
-}
+import { Avatar } from '@/components/ui/Avatar'
 
 function ExpertCard({ e }: { e: any }) {
   const name = e.real_name || e.users?.name || '?'
-  const color = avatarColor(e.user_id)
+  const avatarUser = { id: e.user_id, name, avatar_url: e.users?.avatar_url }
   return (
     <Link href={`/experts/${e.user_id}`} className="flex flex-col items-center text-center p-5 rounded-2xl hover:bg-white hover:shadow-sm transition-all group cursor-pointer">
-      <div className={`w-20 h-20 rounded-full ${color} flex items-center justify-center text-white text-2xl font-bold mb-3 group-hover:scale-105 transition-transform`}>
-        {name[0]}
+      <div className="mb-3 group-hover:scale-105 transition-transform">
+        <Avatar user={avatarUser} size="xl" />
       </div>
       <p className="font-semibold text-gray-900 mb-2 leading-tight">{name}</p>
       <div className="flex flex-wrap justify-center gap-1 mb-2">
@@ -34,11 +25,10 @@ function ExpertCard({ e }: { e: any }) {
 }
 
 function StudentCard({ s }: { s: any }) {
-  const color = avatarColor(s.id)
   return (
     <div className="flex flex-col items-center text-center p-5 rounded-2xl">
-      <div className={`w-20 h-20 rounded-full ${color} flex items-center justify-center text-white text-2xl font-bold mb-3`}>
-        {s.name?.[0] ?? '?'}
+      <div className="mb-3">
+        <Avatar user={s} size="xl" />
       </div>
       <p className="font-semibold text-gray-900 mb-1">{s.name}</p>
       {s.student_profiles?.school && (
